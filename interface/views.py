@@ -1,7 +1,11 @@
+import requests
+from django.http import JsonResponse
 from django.shortcuts import render
 
 # Create your views here.
 from django.views.generic import TemplateView
+
+from interface.utility_functions import input_validation
 
 
 def render_page(request):
@@ -13,3 +17,12 @@ class PartialGroupView(TemplateView):
         context = super(PartialGroupView, self).get_context_data(**kwargs)
         # update the context
         return context
+
+
+@input_validation
+def call_stack_api(request, filters):
+    print(filters)
+
+    r = requests.get()
+
+    return JsonResponse({})

@@ -1,5 +1,12 @@
 app = angular.module('stackModule', ['ngAnimate', 'ngSanitize', 'ui.bootstrap']);
 
+app.config(function($interpolateProvider, $httpProvider){
+    $httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+    $httpProvider.defaults.xsrfCookieName=  "csrftoken";
+    $httpProvider.defaults.xsrfHeaderName=  "X-CSRFToken";
+
+});
+
 app.controller('apiCtrl', ['$scope', 'restApi', 'processFilters', '$timeout', function(scope, restApi, processFilters, $timeout) {
 
     window.scope = scope;

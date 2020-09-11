@@ -30,11 +30,14 @@ app.service('restApi', function($http, $q) {
     function apiCall(data) {
         let deferred = $q.defer();
         console.log(data);
-        $http({
-                method: "GET",
-                url: 'https://api.stackexchange.com/2.2/search/advanced?site=stackoverflow',
-                params: data
-            })
+        // $http({
+        //         method: "GET",
+        //         url: 'stack-api/',
+        //         data: data
+        //         // url: 'https://api.stackexchange.com/2.2/search/advanced?site=stackoverflow',
+        //         // params: data
+        //     })
+        $http.post('stack-api/', {'filters': data})
             .then(function(result) {
                 deferred.resolve(result);
             }, function(result) {

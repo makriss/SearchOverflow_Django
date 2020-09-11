@@ -12,5 +12,6 @@ partial_patterns = [
 
 urlpatterns = [
     path('', views.render_page),
+    path('stack-api/', views.call_stack_api),
     url(r'^templates/', include(partial_patterns)),
 ]
