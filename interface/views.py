@@ -22,7 +22,6 @@ class PartialGroupView(TemplateView):
 @input_validation
 def call_stack_api(request, filters):
     print(filters)
-
-    r = requests.get()
-
-    return JsonResponse({})
+    response = requests.get('https://api.stackexchange.com/2.2/search/advanced?site=stackoverflow', filters)
+    print(response.request.url)
+    return JsonResponse(response.json())
