@@ -8,7 +8,7 @@ from django.shortcuts import render
 # Create your views here.
 from django.views.generic import TemplateView
 
-from interface.utility_functions import input_validation
+from interface.utility_functions import input_validation, session_validation
 
 
 def render_page(request):
@@ -22,10 +22,12 @@ class PartialGroupView(TemplateView):
         return context
 
 
+@session_validation
 @input_validation
-def call_stack_api(request, filters):
+def call_stack_api(filters):
     params = urllib.parse.urlencode(filters)
     print(params)
+
     if cache.get(params):
         print("From Cache")
         return JsonResponse(cache.get(params))
