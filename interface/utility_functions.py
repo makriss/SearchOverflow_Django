@@ -3,7 +3,8 @@ import json
 
 from django.http import JsonResponse
 
-from interface.constants import DAY_QUOTA_LIMIT, MINUTES_QUOTA_LIMIT, MINUTES_QUOTA
+from interface.constants import DAY_QUOTA_LIMIT, MINUTES_QUOTA_LIMIT, MINUTES_QUOTA, MINUTES_ERROR_MSG, \
+    DAY_QUOTA_ERROR_MSG
 
 
 def input_validation(func):
@@ -27,7 +28,7 @@ def session_validation(func):
             request.session['minutes_quota']['count'] = request.session['minutes_quota'].get('count') + 1
 
         if request.session['minutes_quota']['count'] > MINUTES_QUOTA_LIMIT:
-            return JsonResponse({"error": True, "msg": "Minute api call quota exceeded"})
+            return JsonResponse({"error": True, "error_msg": MINUTES_ERROR_MSG})
 
         # checking for day quota
         if 'day_quota' not in request.session or get_date_from_timestamp(request.session) < datetime.date.today():
@@ -36,7 +37,7 @@ def session_validation(func):
             request.session['day_quota']['count'] = request.session['day_quota'].get('count') + 1
 
         if request.session['day_quota']['count'] > DAY_QUOTA_LIMIT:
-            return JsonResponse({"error": True, "msg": "Daily api call quota exceeded"})
+            return JsonResponse({"error": True, "error_msg": DAY_QUOTA_ERROR_MSG})
 
         return func(request)
 

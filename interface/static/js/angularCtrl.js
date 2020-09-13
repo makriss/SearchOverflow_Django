@@ -1,15 +1,14 @@
 app = angular.module('stackModule', ['ngAnimate', 'ngSanitize', 'ui.bootstrap']);
 
 app.config(function($interpolateProvider, $httpProvider){
-    $httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
     $httpProvider.defaults.xsrfCookieName=  "csrftoken";
     $httpProvider.defaults.xsrfHeaderName=  "X-CSRFToken";
-
 });
 
 app.controller('apiCtrl', ['$scope', 'restApi', 'processFilters', '$timeout', function(scope, restApi, processFilters, $timeout) {
 
     window.scope = scope;
+    const defaultMsg = "No results found!";
     scope.filters = {};
     scope.questionsListing = null;
     scope.button = { text: "Search", loading: false };
@@ -21,12 +20,22 @@ app.controller('apiCtrl', ['$scope', 'restApi', 'processFilters', '$timeout', fu
         itemsPerPage: 5
     }
 
-    scope.toggleFiltersDisplay = function(event) {
+    function initialiseFilters(){
+        scope.filters = {order:'desc', sort:'activity'}
+    }
+    initialiseFilters()
+    scope.clearFilters = initialiseFilters;
+
+    scope.toggleFiltersDisplay = function() {
         let elm = $("#filters-box");
-        if (elm.is(":hidden"))
+        if (elm.is(":hidden")){
             elm.slideDown();
-        else
+            angular.element("#clear-filters").removeClass("v_h");
+        }
+        else{
             elm.slideUp();
+            angular.element("#clear-filters").addClass("v_h");
+        }
     }
 
     scope.callApi = function() {
@@ -41,12 +50,19 @@ app.controller('apiCtrl', ['$scope', 'restApi', 'processFilters', '$timeout', fu
             scope.button = { text: "Search", loading: false };
             console.log(data.data);
 
-            scope.questionsListing = data.data.items;
-            scope.pagination.totalItems = data.data.items.length;
+            if (data.data.error || data.data.error_id){
+                scope.error_msg = data.data.error_msg;
+                scope.questionsListing = [];
+                scope.pagination.totalItems = [].length;
+            }
+            else{
+                scope.questionsListing = data.data.items;
+                scope.pagination.totalItems = data.data.items.length;
 
-            scope.setPage(1);
-            scope.getPageListing(1);
-
+                scope.error_msg = defaultMsg;
+                scope.setPage(1);
+                scope.getPageListing(1);
+            }
 
         }, function(data) {
             scope.button = { text: "Search", loading: false };
@@ -56,9 +72,10 @@ app.controller('apiCtrl', ['$scope', 'restApi', 'processFilters', '$timeout', fu
 
     function startTransition() {
         let elm = $("#filters-box");
-        if (!elm.is(":hidden"))
+        if (!elm.is(":hidden")) {
             elm.slideUp();
-
+            angular.element("#clear-filters").addClass("v_h");
+        }
         let box = $("div#search-box");
         if (!box.hasClass("height-auto")) {
             box.addClass("height-reduce");
@@ -83,12 +100,6 @@ app.controller('apiCtrl', ['$scope', 'restApi', 'processFilters', '$timeout', fu
         scope.pagination.currentPage = pageNo;
     };
 
-    scope.pageChanged = function() {
-        console.log(scope.pagination.currentPage);
-    };
-
-
-
 
 }])
 
@@ -97,8 +108,6 @@ app.factory('processFilters', function() {
         for (let f in filters) {
             if (f.includes('date')) {
                 filters[f] = new Date(filters[f]).getTime() / 1000;
-            } else if (f == "tagged" || f == "nottagged") {
-                // add check for a semicolon delimited list
             }
         }
 
